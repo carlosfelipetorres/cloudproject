@@ -1,0 +1,28 @@
+BEGIN;
+--
+-- Create model Audio
+--
+CREATE TABLE "supervoices_audio" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "email" varchar(200) NOT NULL, "first_name" varchar(100) NOT NULL, "last_name" varchar(100) NOT NULL, "date_uploaded" datetime NOT NULL, "original_audio" varchar(500) NOT NULL, "converted_audio" varchar(500) NOT NULL, "state" varchar(10) NOT NULL);
+--
+-- Create model Contest
+--
+CREATE TABLE "supervoices_contest" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "name" varchar(200) NOT NULL, "banner" varchar(500) NOT NULL, "url" varchar(500) NOT NULL, "guion" varchar(1000) NOT NULL, "recommendations" varchar(1000) NOT NULL, "valor" integer NOT NULL, "date_begin" datetime NOT NULL, "date_finish" datetime NOT NULL);
+--
+-- Create model File_contest_user
+--
+CREATE TABLE "supervoices_file_contest_user" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "audio_id" integer NOT NULL REFERENCES "supervoices_audio" ("id"), "contest_id" integer NOT NULL REFERENCES "supervoices_contest" ("id"));
+--
+-- Create model User
+--
+CREATE TABLE "supervoices_user" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "role" varchar(10) NOT NULL, "first_name" varchar(100) NOT NULL, "last_name" varchar(100) NOT NULL, "email" varchar(200) NOT NULL, "password" varchar(200) NOT NULL, "date_created" datetime NOT NULL);
+--
+-- Add field user to file_contest_user
+--
+ALTER TABLE "supervoices_file_contest_user" RENAME TO "supervoices_file_contest_user__old";
+CREATE TABLE "supervoices_file_contest_user" ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, "audio_id" integer NOT NULL REFERENCES "supervoices_audio" ("id"), "contest_id" integer NOT NULL REFERENCES "supervoices_contest" ("id"), "user_id" integer NOT NULL REFERENCES "supervoices_user" ("id"));
+INSERT INTO "supervoices_file_contest_user" ("contest_id", "user_id", "id", "audio_id") SELECT "contest_id", NULL, "id", "audio_id" FROM "supervoices_file_contest_user__old";
+DROP TABLE "supervoices_file_contest_user__old";
+CREATE INDEX "supervoices_file_contest_user_26f6023f" ON "supervoices_file_contest_user" ("audio_id");
+CREATE INDEX "supervoices_file_contest_user_41b6de5d" ON "supervoices_file_contest_user" ("contest_id");
+CREATE INDEX "supervoices_file_contest_user_e8701ad4" ON "supervoices_file_contest_user" ("user_id");
+COMMIT;
